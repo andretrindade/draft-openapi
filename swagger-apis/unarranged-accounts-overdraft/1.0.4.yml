@@ -81,12 +81,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseUnarrangedAccountOverdraftContractList'
       security:
         - OpenId:
             - openid
@@ -122,12 +122,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseUnarrangedAccountOverdraftContract'
       security:
         - OpenId:
             - openid
@@ -165,12 +165,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseUnarrangedAccountOverdraftWarranties'
       security:
         - OpenId:
             - openid
@@ -208,12 +208,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseUnarrangedAccountOverdraftInstalments'
       security:
         - OpenId:
             - openid
@@ -251,12 +251,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseUnarrangedAccountOverdraftPayments'
       security:
         - OpenId:
             - openid
@@ -356,6 +356,7 @@ components:
         contractId:
           type: string
           maxLength: 100
+          minLength: 1
           pattern: '^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$'
           description: Um identificador único e imutável usado para identificar o contrato de uma operação de crédito. Este identificador não tem significado para o tomador do crédito
           example: xcjklompowsa279212650822221989319aadrtjk
@@ -378,6 +379,8 @@ components:
         ipocCode:
           type: string
           maxLength: 67
+          minLength: 22
+          pattern: '^\d{22,67}$'
           description: |
             "Número padronizado do contrato - IPOC (Identificação Padronizada da Operação de Crédito). Segundo DOC 3040, composta por:
             - **CNPJ da instituição:** 8 (oito) posições iniciais;
@@ -510,6 +513,7 @@ components:
       maxLength: 96
       enum:
         - ACOES_DEBENTURES
+        - ACORDOS_COMPENSACAO_LIQUIDACAO_OBRIGACOES
         - APLICACOES_FINANCEIRAS_RENDA_FIXA
         - APLICACOES_FINANCEIRAS_RENDA_VARIAVEL
         - APOLICES_CREDITO_EXPORTACAO
@@ -552,10 +556,12 @@ components:
         - PRIMEIRO_GRAU_BENS_DIREITOS_INTEGRANTES_PATRIMONIO_AFETACAO
         - PRIMEIRO_GRAU_IMOVEIS_RESIDENCIAIS
         - PRIMEIRO_GRAU_OUTROS
+        - PROAGRO
         - PRODUTOS_AGROPECUARIOS_COM_WARRANT
         - PRODUTOS_AGROPECUARIOS_SEM_WARRANT
         - SBCE_SOCIEDADE_BRASILEIRA_CREDITO_EXPORTAÇÃO
         - SEGURO_RURAL
+        - SEM_SUB_TIPO_GARANTIA
         - TRIBUTOS_RECEITAS_ORCAMENTARIAS
         - VEICULOS
         - VEICULOS_AUTOMOTORES
@@ -602,24 +608,28 @@ components:
       properties:
         feeName:
           type: string
-          description: Denominação da Tarifa pactuada
+          description: |
+            Denominação da Tarifa pactuada.
+
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA
           maxLength: 140
           pattern: '[\w\W\s]*'
           example: Saque a descoberto
         feeCode:
           type: string
-          description: Sigla identificadora da tarifa avulsa fora da parcela
+          description: |
+            Sigla identificadora da tarifa avulsa fora da parcela
+
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA
           maxLength: 140
-          pattern: '[\w\W\s]*'
+          pattern: '^\w{2}[\w\W\s]*$'
           example: Saque descoberto
         feeAmount:
-          type: number
-          format: double
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          maxLength: 20
-          minLength: 0
-          nullable: true
-          example: 100000.04
+          maxLength: 21
+          minLength: 4
+          example: '100000.0400'
           description: |
             Valor monetário da tarifa pactuada no contrato.
             [Restrição] Preenchimento obrigatório quando a forma de cobrança for: Mínimo, Máximo ou Fixo
@@ -652,7 +662,6 @@ components:
       required:
         - dueInstalments
         - pastDueInstalments
-        - balloonPayments
         - typeContractRemaining
         - contractRemainingNumber
         - typeNumberOfInstalments
@@ -725,12 +734,11 @@ components:
           example: 73
           description: Quantidade total de parcelas pagas do contrato referente à Modalidade de Crédito informada.
         contractOutstandingBalance:
-          type: number
-          format: double
-          minLength: 0
-          maxLength: 20
+          type: string
+          minLength: 4
+          maxLength: 21
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          example: 100000.04
+          example: '100000.0400'
           description: Valor necessario para o cliente liquidar a dívida.
         releases:
           type: array
@@ -781,12 +789,11 @@ components:
             Moeda referente ao valor monetário informado, segundo modelo ISO-4217. p.ex. 'BRL'.
             Todos os valores monetários informados estão representados com a moeda vigente do Brasil.
         paidAmount:
-          type: number
-          format: double
-          maxLength: 20
-          minLength: 0
+          type: string
+          maxLength: 21
+          minLength: 4
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          example: 100000.04
+          example: '100000.0400'
           description: |
             Valor do pagamento referente ao  contrato da modalidade de crédito consultada.
             Expresso em valor monetário com até 4 casas decimais.
@@ -845,14 +852,14 @@ components:
           nullable: true
           example: 100000.04
         feeRate:
-          type: number
-          format: double
+          type: string
+          pattern: '^\d{1}\.\d{4}$'
           description: |
             É o valor da tarifa em percentual pactuada no contrato. Deve-se informar 4 casas decimais, mesmo que preenchidas com zeros. Exemplo: 0.2000
             [Restrição] Preenchimento obrigatório quando a forma de cobrança for Percentual. Exemplo: 0.0150 = 1,5%.
-          maxLength: 19
-          example: 50
-          nullable: true
+          maxLength: 6
+          minLength: 6
+          example: '0.0150'
       additionalProperties: false
     UnarrangedAccountsOverdraftContractedWarranty:
       type: object
@@ -876,12 +883,11 @@ components:
         warrantyAmount:
           description: |
             Valor original da garantia. Valor monetário, expresso com até 4 casas decimais.
-          type: number
-          format: double
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          maxLength: 20
-          minLength: 0
-          example: 100000.04
+          maxLength: 21
+          minLength: 4
+          example: '100000.0400'
       additionalProperties: false
     UnarrangedAccountOverdraftBalloonPayment:
       type: object
@@ -908,13 +914,11 @@ components:
           example: BRL
         amount:
           description: Valor monetário da parcela não regular a vencer. Expresso em valor monetário com 4 casas decimais.
-          type: number
-          format: double
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          nullable: true
-          maxLength: 20
-          minLength: 0
-          example: 100000.04
+          maxLength: 21
+          minLength: 4
+          example: '100000.0400'
       additionalProperties: false
     UnarrangedAccountOverdraftChargeOverParcel:
       type: object
@@ -936,13 +940,11 @@ components:
             [Restrição] Obrigatório quando chargeType for igual OUTROS.
         chargeAmount:
           description: Valor do pagamento do encargo pago fora da parcela. Expresso em valor monetário com até 4 casas decimais.
-          type: number
-          format: double
-          nullable: true
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          maxLength: 20
-          minLength: 0
-          example: 100000.04
+          maxLength: 21
+          minLength: 4
+          example: '100000.0400'
       additionalProperties: false
     UnarrangedAccountOverdraftContractData:
       type: object
@@ -971,11 +973,15 @@ components:
         contractNumber:
           type: string
           maxLength: 100
+          minLength: 1
+          pattern: '^\d{1,100}$'
           example: '1324926521496'
           description: Número do contrato dado pela instituição contratante.
         ipocCode:
           type: string
           maxLength: 67
+          minLength: 22
+          pattern: '^\d{22,67}$'
           example: '92792126019929279212650822221989319252576'
           description: |
             "Número padronizado do contrato - IPOC (Identificação Padronizada da Operação de Crédito). Segundo DOC 3040, composta por:
@@ -1023,13 +1029,11 @@ components:
             [Restrição] Deve aceitar NA caso não seja retornado pela instituição.
         contractAmount:
           description: Valor contratado da operação. Expresso em valor monetário com até 4 casas decimais
-          type: number
-          format: double
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          maxLength: 20
-          minLength: 0
-          example: 100000.04
-          nullable: true
+          maxLength: 21
+          minLength: 4
+          example: '100000.0400'
         currency:
           type: string
           pattern: '^(\w{3}){1}$'
@@ -1042,9 +1046,13 @@ components:
           type: string
           format: date
           maxLength: 10
-          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$'
+          minLength: 2
+          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$|^NA$'
           example: '2028-01-15'
-          description: Data de vencimento Final da operação. Especificação RFC-3339
+          description: |
+            Data de vencimento Final da operação. Especificação RFC-3339
+
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA
         instalmentPeriodicity:
           $ref: '#/components/schemas/EnumContractInstalmentPeriodicity'
         instalmentPeriodicityAdditionalInfo:
@@ -1059,18 +1067,23 @@ components:
           type: string
           format: date
           maxLength: 10
-          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$'
+          minLength: 2
+          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$|^NA$'
           example: '2018-02-15'
-          description: Data de vencimento primeira parcela do principal
+          description: |
+            Data de vencimento primeira parcela do principal
+
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA
         CET:
-          type: number
+          type: string
+          pattern: '^\d{1}\.\d{4}$'
           description: |
             "CET – Custo Efetivo Total deve ser expresso na forma de taxa percentual anual e   incorpora todos os encargos e despesas incidentes nas operações de crédito (taxa de juro, mas também tarifas, tributos, seguros e outras despesas cobradas).
             O preenchimento deve respeitar as 4 casas decimais, mesmo que venham preenchidas com zeros
             (representação de porcentagem p.ex: 0.1500. Este valor representa 15%. O valor 1 representa 100%)"
-          maxLength: 19
-          example: 0.29
-          nullable: true
+          maxLength: 6
+          minLength: 6
+          example: '0.2900'
         amortizationScheduled:
           type: string
           description: |
@@ -1099,6 +1112,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UnarrangedAccountOverdraftContractInterestRate'
+          description: |
+            Caso o contrato não possua taxas de juros, deve ser compartilhardo uma lista vazia. Caso o contrato possua uma taxa de juros com valor 0, deve ser compartilhado um objeto com o valor 0 explícito.
         contractedFees:
           type: array
           items:
@@ -1153,22 +1168,25 @@ components:
             Campo livre para complementar a informação relativa ao Tipo de taxa referencial ou indexador.
             [Restrição] Obrigatório para complementar a informação relativa ao Tipo de taxa referencial ou indexador, quando selecionada o tipo ou subtipo OUTRO.
         preFixedRate:
-          type: number
+          type: string
+          pattern: '^\d{1}\.\d{4}$'
+          maxLength: 6
+          minLength: 6
           description: |
             "Taxa pré fixada aplicada sob o contrato da modalidade crédito.
             p.ex. 0.0045. O preenchimento deve respeitar as 4 casas decimais, mesmo que venham preenchidas com zeros
             (representação de porcentagem p.ex: 0.1500. Este valor representa 15%. O valor 1 representa 100%)"
-          maxLength: 19
-          example: 0.6
-          nullable: true
+          example: '0.6000'
         postFixedRate:
-          type: number
+          type: string
+          pattern: '^\d{1}\.\d{4}$'
+          maxLength: 6
+          minLength: 6
           description: |
             "Taxa pós fixada aplicada sob o contrato da modalidade crédito.
             p.ex. 0.0045 .O preenchimento deve respeitar as 4 casas decimais, mesmo que venham preenchidas com zeros
             (representação de porcentagem p.ex: 0.1500. Este valor representa 15%. O valor 1 representa 100%)"
-          maxLength: 19
-          example: 0.55
+          example: '0.5500'
         additionalInfo:
           type: string
           maxLength: 1200
@@ -1214,10 +1232,7 @@ components:
           type: string
           format: uri
           maxLength: 2000
-          description: |
-            O atributo self do objeto link:
-
-            Quando chamado método GET deverá retornar o link para o próprio recurso consultado.
+          description: URI completo que gerou a resposta atual.
           example: 'https://api.banco.com.br/open-banking/api/v1/resource'
           pattern: '^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$'
         first:
@@ -1251,7 +1266,7 @@ components:
       additionalProperties: false
     Meta:
       type: object
-      description: Meta informações referente a API requisitada.
+      description: Meta informações referente à API requisitada.
       required:
         - totalRecords
         - totalPages
@@ -1500,6 +1515,12 @@ components:
             $ref: '#/components/schemas/ResponseError'
     Unauthorized:
       description: Cabeçalho de autenticação ausente/inválido ou token inválido
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    UnprocessableEntity:
+      description: 'A sintaxe da requisição esta correta, mas não foi possível processar as instruções presentes.'
       content:
         application/json; charset=utf-8:
           schema:

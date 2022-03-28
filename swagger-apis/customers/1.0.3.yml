@@ -87,8 +87,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponsePersonalCustomersIdentification'
       security:
         - OpenId:
             - openid
@@ -127,8 +125,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponsePersonalCustomersQualification'
       security:
         - OpenId:
             - openid
@@ -167,8 +163,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponsePersonalCustomersFinancialRelation'
       security:
         - OpenId:
             - openid
@@ -207,8 +201,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseBusinessCustomersIdentification'
       security:
         - OpenId:
             - openid
@@ -247,8 +239,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseBusinessCustomersQualification'
       security:
         - OpenId:
             - openid
@@ -287,8 +277,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseBusinessCustomersFinancialRelation'
       security:
         - OpenId:
             - openid
@@ -349,7 +337,6 @@ components:
         - updateDateTime
         - brandName
         - cnpjNumber
-        - tradeName
         - companyCnpjNumber
         - companyName
         - incorporationDate
@@ -502,18 +489,18 @@ components:
               type: string
               maxLength: 100
               pattern: '[\w\W\s]*'
+              minItems: 0
               example: Informações adicionais
               description: |
-                Texto livre para complementar informação relativa ao patrimonio. 
+                Texto livre para complementar informação relativa ao patrimonio.
+
                 [Restrição] Preencher quando frequency for igual OUTROS.
             amount:
-              type: number
-              format: double
-              minLength: 0
-              maxLength: 20
-              nullable: true
+              type: string
+              minLength: 4
+              maxLength: 21
               pattern: '^-?\d{1,15}\.\d{2,4}$'
-              example: 100000.04
+              example: '100000.0400'
               description: |
                 Valor do patrimônio informado. Expresso em valor monetário com 4 casas decimais.
                 Patrimônio é o conjunto de bens vinculado a uma pessoa ou a uma entidade.
@@ -537,8 +524,6 @@ components:
     BusinessOtherDocument:
       type: object
       required:
-        - number
-        - country
         - expirationDate
       properties:
         type:
@@ -558,7 +543,7 @@ components:
           maxLength: 3
           pattern: '^(\w{3}){1}$|^NA$'
           example: CAN
-          description: Pais de emissão do tipo de documento informado. Código do pais de acordo com o código “alpha3” do ISO-3166
+          description: Pais de emissão do tipo de documento informado. Código do pais de acordo com o código alpha3 do ISO-3166
         expirationDate:
           type: string
           format: date
@@ -629,13 +614,11 @@ components:
         - date
       properties:
         amount:
-          type: number
-          format: double
-          minLength: 0
-          maxLength: 20
-          nullable: true
+          type: string
+          minLength: 4
+          maxLength: 21
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          example: 100000.04
+          example: '100000.0400'
           description: |
             Valor do patrimônio informado. Expresso em valor monetário com 4 casas decimais.
             Patrimônio é o conjunto de bens vinculado a uma pessoa ou a uma entidade.
@@ -661,13 +644,11 @@ components:
         - year
       properties:
         amount:
-          type: number
-          format: double
-          minLength: 0
-          maxLength: 20
-          nullable: true
+          type: string
+          minLength: 4
+          maxLength: 21
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          example: 100000.04
+          example: '100000.0400'
           description: |
             Valor do patrimônio informado. Expresso em valor monetário com 4 casas decimais.
             Patrimônio é o conjunto de bens vinculado a uma pessoa ou a uma entidade.
@@ -750,11 +731,11 @@ components:
       required:
         - isMain
         - address
-        - districtName
         - townName
         - countrySubDivision
         - postCode
         - country
+        - countryCode
       properties:
         isMain:
           type: boolean
@@ -763,9 +744,13 @@ components:
         address:
           type: string
           maxLength: 150
-          pattern: '[\w\W\s]*'
+          minLength: 2
+          pattern: '^\w{2}[\w\W\s]*$'
           example: 'Av Naburo Ykesaki, 1270'
-          description: Corresponde ao endereço comercial do cliente
+          description: |
+            Corresponde ao endereço comercial do cliente.
+
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA.
         additionalInfo:
           type: string
           maxLength: 30
@@ -775,16 +760,20 @@ components:
         districtName:
           type: string
           maxLength: 50
-          pattern: '[\w\W\s]*'
+          pattern: \w*\W*
           example: Centro
-          description: Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.
+          description: |
+            Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas. Preenchimento obrigatório, se houver.
         townName:
           type: string
           maxLength: 50
-          pattern: '[\w\W\s]*'
+          pattern: '^\w{2}[\w\W\s]*$'
+          minLength: 2
           example: Marília
           description: |
-            Localidade: O nome da localidade corresponde à designação da cidade ou município no qual o endereço está localizado.
+            Localidade: O nome da localidade corresponde à designação da cidade ou município no qual o endereço está localizado.  
+
+            [Restrição] Caso a transmissora não possua a informação deverá retornar "NA" neste campo.
         ibgeTownCode:
           type: string
           pattern: '\d{7}$'
@@ -803,14 +792,16 @@ components:
         country:
           type: string
           maxLength: 80
-          pattern: '[\w\W\s]*'
+          pattern: \w*\W*
           example: Brasil
-          description: Nome do país
+          description: |
+            Nome do país
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA.
         countryCode:
           type: string
           maxLength: 3
           example: BRA
-          description: Código do pais de acordo com o código “alpha3” do ISO-3166
+          description: Código do pais de acordo com o código alpha3 do ISO-3166
         geographicCoordinates:
           $ref: '#/components/schemas/GeographicCoordinates'
       additionalProperties: false
@@ -819,7 +810,6 @@ components:
       required:
         - isMain
         - address
-        - districtName
         - townName
         - countrySubDivision
         - postCode
@@ -838,6 +828,7 @@ components:
         additionalInfo:
           type: string
           maxLength: 30
+          minItems: 0
           pattern: '[\w\W\s]*'
           example: Fundos
           description: Alguns logradouros ainda necessitam ser especificados por meio de complemento.
@@ -846,7 +837,9 @@ components:
           maxLength: 50
           pattern: '[\w\W\s]*'
           example: Centro
-          description: Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.
+          description: |
+            Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.
+            [Restrição] De preenchimento obrigatório, se houver.
         townName:
           type: string
           maxLength: 50
@@ -879,7 +872,7 @@ components:
           type: string
           maxLength: 3
           example: BRA
-          description: Código do pais de acordo com o código “alpha3” do ISO-3166.
+          description: Código do pais de acordo com o código alpha3 do ISO-3166.
         geographicCoordinates:
           $ref: '#/components/schemas/GeographicCoordinates'
       additionalProperties: false
@@ -997,15 +990,16 @@ components:
         - isMain
       properties:
         code:
-          type: number
+          type: string
           pattern: '^\d{7}$|^NA$'
           maxLength: 7
+          minLength: 2
           description: |
             Traz o código do ramo da atividade principal da empresa consultada, segundo padrão CNAE (Classificação Nacional de Atividades Econômicas)
-          example: 8599604
+          example: '8599604'
         isMain:
           type: boolean
-          description: Indica se é o ramo principal de atividade da empresa quando true e se é o ramo secundário quando false.
+          description: 'Indica se é o ramo principal de atividade da empresa quando true e se é o ramo secundário quando false. [Restrição] Somente uma ocorrência relativa ao código da atividade econômica principal deve trazer o valor true.'
           example: true
     EnumAreaCode:
       type: string
@@ -1172,9 +1166,10 @@ components:
         - DIVORCIADO
         - UNIAO_ESTAVEL
         - OUTRO
+        - NAO_DISPONIVEL
       example: SOLTEIRO
       description: |
-        Estado marital do cliente. 
+        Estado marital do cliente.
     EnumOccupationMainCodeType:
       type: string
       enum:
@@ -1210,7 +1205,7 @@ components:
       enum:
         - REPRESENTANTE_LEGAL
         - PROCURADOR
-        - NAO_SE_APLICA
+        - NAO_POSSUI
       example: PROCURADOR
       description: |
         Tipo de representante.
@@ -1251,18 +1246,18 @@ components:
       properties:
         latitude:
           description: |
-            Informação da Latitude referente a geolocalização informada. Entre -90 e 90.p.ex. '-90.8365180'. (2 casas antes da vírgula, 11 posições) 
+            Informação da Latitude referente a geolocalização informada. Entre -90 e 90.p.ex. '-23.5475000'. (2 casas antes da vírgula, 11 posições)
           type: string
           pattern: '^-?\d{1,2}\.\d{1,9}$'
           maxLength: 13
-          example: '-90.8365180'
+          example: '-23.5475000'
         longitude:
           description: |
-            Informação da Longitude referente a geolocalização informada. Entre -180 e 180. p.ex '-180.836519.' (3 casas antes da vírgula, 11 posições) 
+            Informação da Longitude referente a geolocalização informada. Entre -180 e 180. p.ex '-46.6361100'. (3 casas antes da vírgula, 11 posições)
           type: string
           pattern: '^-?\d{1,3}\.\d{1,8}$'
           maxLength: 13
-          example: '-180.836519'
+          example: '-46.6361100'
       additionalProperties: false
     Links:
       type: object
@@ -1308,7 +1303,7 @@ components:
       additionalProperties: false
     Meta:
       type: object
-      description: Meta informações referente a API requisitada.
+      description: Meta informações referente à API requisitada.
       required:
         - totalRecords
         - totalPages
@@ -1343,7 +1338,7 @@ components:
           maxLength: 40
           example: CAN
           description: |
-            Campo de preenchimento obrigatório caso o cliente não possua nacionalidade brasileira. Preencher indicando todas suas demais nacionalidades utilizando o código de pais de acordo com o código “alpha3” do ISO-3166.p.ex.'CAN'
+            Campo de preenchimento obrigatório caso o cliente não possua nacionalidade brasileira. Preencher indicando todas suas demais nacionalidades utilizando o código de pais de acordo com o código alpha3 do ISO-3166.p.ex.'CAN'
         documents:
           type: array
           items:
@@ -1387,13 +1382,16 @@ components:
         country:
           type: string
           maxLength: 80
-          pattern: '[\w\W\s]*'
+          pattern: \w*\W*
+          minItems: 0
           example: Brasil
-          description: Nome do país
+          description: |
+            Nome do país.
         typeAdditionalInfo:
           type: string
           maxLength: 70
           pattern: '[\w\W\s]*'
+          minItems: 0
           description: Campo livre de preenchimento obrigatório se selecionada a opção OUTROS tipos de documentos.
           example: Informações adicionais.
       additionalProperties: false
@@ -1405,14 +1403,11 @@ components:
         - type
         - personType
         - civilName
-        - socialName
         - companyName
         - startDate
         - shareholding
         - documentType
         - documentNumber
-        - documentCountry
-        - documentExpirationDate
       properties:
         personType:
           type: string
@@ -1439,9 +1434,13 @@ components:
         socialName:
           type: string
           maxLength: 70
+          minItems: 0
           pattern: '[\w\W\s]*'
           example: Karina
-          description: 'Nome social da pessoa natural, se houver. (aquele pelo qual travestis e transexuais se reconhecem, bem como são identificados por sua comunidade e em seu meio social, conforme Decreto Local)'
+          description: |
+            Nome social da pessoa natural, se houver. (aquele pelo qual travestis e transexuais se reconhecem, bem como são identificados por sua comunidade e em seu meio social, conforme Decreto Local).   
+
+            [Restrição] De preenchimento obrigatório, se houver.
         companyName:
           type: string
           maxLength: 70
@@ -1485,8 +1484,10 @@ components:
         documentCountry:
           type: string
           maxLength: 3
+          pattern: '[\w*\W*]'
           example: CAN
-          description: País de emissão do documento. Código do pais de acordo com o código alpha3 do ISO-3166.
+          description: |
+            País de emissão do documento. Código do pais de acordo com o código alpha3 do ISO-3166.
         documentExpirationDate:
           type: string
           format: date
@@ -1497,6 +1498,7 @@ components:
         documentIssueDate:
           type: string
           maxLength: 10
+          minItems: 0
           format: date
           pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$'
           example: '2021-05-21'
@@ -1520,13 +1522,15 @@ components:
         passportNumber:
           type: string
           maxLength: 20
-          pattern: '[\w\W\s]*'
+          pattern: \w*\W*
           example: '75253468744594820620'
           description: |
             Número do Passaporte. Documento concedido aos viajantes por uma autoridade
             administrativa nacional a fim de certificar sua identidade perante autoridades
             estrangeiras. De preenchimento obrigatório. Aplicável somente à Pessoa natural
             residente no exterior desobrigada de inscrição no CPF.
+
+            [Restrição] Aplicável somente à Pessoa natural residente no exterior desobrigada de inscrição no CPF.
         passportCountry:
           type: string
           maxLength: 3
@@ -1554,7 +1558,6 @@ components:
       required:
         - updateDateTime
         - startDate
-        - procurators
         - productsServicesType
         - accounts
       properties:
@@ -1580,7 +1583,7 @@ components:
           maxItems: 12
         productsServicesTypeAdditionalInfo:
           type: string
-          pattern: '[\w\W\s]*'
+          pattern: \w*\W*
           maxLength: 100
           example: Informações adicionais do tipo de serviço.
           description: |
@@ -1590,15 +1593,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonalProcurator'
-          minItems: 1
-          description: Lista dos representantes. De preenchimento obrigatório se houver representante.
+          minItems: 0
+          description: |
+            Lista dos representantes. 
+            [Restrição] De preenchimento obrigatório se houver representante.
         accounts:
           type: array
           items:
             $ref: '#/components/schemas/PersonalAccount'
           minItems: 1
           description: |
-            Lista de contas depósito à vista, poupança e pagamento pré-pagas mantidas pelo cliente na instituição transmissora.    
+            Lista de contas depósito à vista, poupança e pagamento pré-pagas mantidas pelo cliente na instituição transmissora.
       additionalProperties: false
     PersonalIdentificationData:
       type: object
@@ -1664,7 +1669,10 @@ components:
           pattern: '[\w\W\s]*'
           maxLength: 50
           example: Casado
-          description: 'Campo livre para complementar a informação relativa ao estado marital, quando selecionada a opção ''OUTROS'''
+          description: |
+            Campo livre para complementar a informação relativa ao estado marital.
+
+            [Restrição] Preenchimento obrigatório quando selecionado o tipo 'OUTRO'.
         sex:
           $ref: '#/components/schemas/EnumSex'
         companyCnpj:
@@ -1709,21 +1717,21 @@ components:
               civilName:
                 type: string
                 maxLength: 70
-                pattern: '[\w\W\s]*'
+                pattern: \w*\W*
                 example: Marcelo Cláudio Fernandes
                 description: |
                   Nome civil completo da pessoa relativa à filiação.
                   (Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, 
-                  com o qual será identificada por toda a sua vida, bem como após a sua morte)
+                  com o qual será identificada por toda a sua vida, bem como após a sua morte).
+                  [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA.
               socialName:
                 type: string
                 maxLength: 70
-                pattern: '[\w\W\s]*'
-                example: NA
+                pattern: \w*\W*
                 description: |
                   Nome social da pessoa natural, se houver. 
                   (aquele pelo qual travestis e transexuais se reconhecem, 
-                  bem como são identificados por sua comunidade e em seu meio social, conforme Decreto Local)
+                  bem como são identificados por sua comunidade e em seu meio social, conforme Decreto Local).
             additionalProperties: false
         contacts:
           $ref: '#/components/schemas/PersonalContacts'
@@ -1779,7 +1787,6 @@ components:
         - type
         - cpfNumber
         - civilName
-        - socialName
       properties:
         type:
           $ref: '#/components/schemas/EnumProcuratorsTypePersonal'
@@ -1846,13 +1853,11 @@ components:
             frequency:
               $ref: '#/components/schemas/EnumInformedIncomeFrequency'
             amount:
-              type: number
-              format: double
-              minLength: 0
-              maxLength: 20
-              nullable: true
+              type: string
+              minLength: 4
+              maxLength: 21
               pattern: '^-?\d{1,15}\.\d{2,4}$'
-              example: 100000.04
+              example: '100000.0400'
               description: |
                 Valor total da renda informada. Expresso em valor monetário com 4 casas decimais. 
                 Renda primária indica os montantes a pagar ou a receber em troca do uso temporário de recursos financeiros, trabalho ou ativos não financeiros não produzidos, a saber, remuneração de trabalhadores, renda de investimentos e demais rendas primárias.

@@ -82,12 +82,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseLoansContractList'
       security:
         - OpenId:
             - openid
@@ -123,12 +123,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseLoansContract'
       security:
         - OpenId:
             - openid
@@ -166,12 +166,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseLoansWarranties'
       security:
         - OpenId:
             - openid
@@ -209,12 +209,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseLoansInstalments'
       security:
         - OpenId:
             - openid
@@ -252,12 +252,12 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
-        default:
-          $ref: '#/components/responses/OKResponseLoansPayments'
       security:
         - OpenId:
             - openid
@@ -446,6 +446,7 @@ components:
       maxLength: 96
       enum:
         - ACOES_DEBENTURES
+        - ACORDOS_COMPENSACAO_LIQUIDACAO_OBRIGACOES
         - APLICACOES_FINANCEIRAS_RENDA_FIXA
         - APLICACOES_FINANCEIRAS_RENDA_VARIAVEL
         - APOLICES_CREDITO_EXPORTACAO
@@ -488,10 +489,12 @@ components:
         - PRIMEIRO_GRAU_BENS_DIREITOS_INTEGRANTES_PATRIMONIO_AFETACAO
         - PRIMEIRO_GRAU_IMOVEIS_RESIDENCIAIS
         - PRIMEIRO_GRAU_OUTROS
+        - PROAGRO
         - PRODUTOS_AGROPECUARIOS_COM_WARRANT
         - PRODUTOS_AGROPECUARIOS_SEM_WARRANT
         - SBCE_SOCIEDADE_BRASILEIRA_CREDITO_EXPORTAÇÃO
         - SEGURO_RURAL
+        - SEM_SUB_TIPO_GARANTIA
         - TRIBUTOS_RECEITAS_ORCAMENTARIAS
         - VEICULOS
         - VEICULOS_AUTOMOTORES
@@ -567,11 +570,15 @@ components:
         - amount
       properties:
         dueDate:
-          description: 'Data de vencimento da parcela não regular  a vencer do contrato da modalidade de crédito consultada, conforme especificação RFC-3339. p.ex. 2014-03-19'
+          description: |
+            'Data de vencimento da parcela não regular  a vencer do contrato da modalidade de crédito consultada, conforme especificação RFC-3339. p.ex. 2014-03-19'
+
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA.
           type: string
           maxLength: 10
+          minLength: 2
           format: date
-          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$'
+          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$|^NA$'
           example: '2021-05-21'
         currency:
           type: string
@@ -583,13 +590,11 @@ components:
           example: BRL
         amount:
           description: Valor monetário da parcela não regular a vencer. Expresso em valor monetário com 4 casas decimais.
-          type: number
-          format: double
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          nullable: true
-          maxLength: 20
-          minLength: 0
-          example: 100000.04
+          maxLength: 21
+          minLength: 4
+          example: '100000.0400'
       additionalProperties: false
     LoansContract:
       type: object
@@ -619,11 +624,15 @@ components:
         contractNumber:
           type: string
           maxLength: 100
+          minLength: 1
+          pattern: '^\d{1,100}$'
           example: '1324926521496'
           description: Número do contrato dado pela instituição contratante.
         ipocCode:
           type: string
           maxLength: 67
+          minLength: 22
+          pattern: '^\d{22,67}$'
           example: '92792126019929279212650822221989319252576'
           description: |
             Número padronizado do contrato - IPOC (Identificação Padronizada da Operação de Crédito). Segundo DOC 3040, composta por:
@@ -670,13 +679,11 @@ components:
             Data de liquidação da operação.
             [Restrição] Deve aceitar NA caso não seja retornado pela instituição.
         contractAmount:
-          type: number
-          format: double
-          minLength: 0
-          maxLength: 20
+          type: string
+          maxLength: 21
+          minLength: 4
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          example: 100000.04
-          nullable: true
+          example: '100000.0400'
           description: Valor contratado da operação. Expresso em valor monetário com até 4 casas decimais
         currency:
           type: string
@@ -690,9 +697,13 @@ components:
           type: string
           format: date
           maxLength: 10
-          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$'
+          minLength: 2
+          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$|^NA$'
           example: '2028-01-15'
-          description: Data de vencimento Final da operação. Especificação RFC-3339
+          description: |
+            Data de vencimento Final da operação. Especificação RFC-3339.
+
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA.
         instalmentPeriodicity:
           $ref: '#/components/schemas/EnumContractInstalmentPeriodicity'
         instalmentPeriodicityAdditionalInfo:
@@ -707,14 +718,17 @@ components:
           type: string
           format: date
           maxLength: 10
-          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$'
+          pattern: '^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$|^NA$'
           example: '2018-02-15'
-          description: Data de vencimento primeira parcela do principal
+          description: |
+            Data de vencimento primeira parcela do principal
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA
         CET:
-          type: number
-          maxLength: 19
-          example: 0.29
-          nullable: true
+          type: string
+          pattern: '^\d{1}\.\d{4}$'
+          maxLength: 6
+          minLength: 6
+          example: '0.2900'
           description: |
             CET – Custo Efetivo Total deve ser expresso na forma de taxa percentual anual e   incorpora todos os encargos e despesas incidentes nas operações de crédito (taxa de juro, mas também tarifas, tributos, seguros e outras despesas cobradas).
             O preenchimento deve respeitar as 4 casas decimais, mesmo que venham preenchidas com zeros
@@ -738,8 +752,10 @@ components:
             CNPJ do consignante (CNPJ corresponde ao número de inscrição no Cadastro de Pessoa Jurídica). Deve-se ter apenas os números do CNPJ, sem máscara. Informação adicional específica para Modalidade de Crédito: Empréstimo-Crédito Pessoal Consignado
         interestRates:
           type: array
+          description: 'Caso o contrato não possua taxas de juros, deve ser compartilhado uma lista vazia. Caso o contrato possua uma taxa de juros com valor 0, deve ser compartilhado um objeto com o valor 0 explícito.'
           items:
             $ref: '#/components/schemas/LoansContractInterestRate'
+          minItems: 0
         contractedFees:
           type: array
           items:
@@ -789,14 +805,14 @@ components:
           nullable: true
           example: 100000.04
         feeRate:
-          type: number
-          format: double
+          type: string
+          pattern: '^\d{1}\.\d{4}$'
           description: |
             É o valor da tarifa em percentual pactuada no contrato. Deve-se informar 4 casas decimais, mesmo que preenchidas com zeros. Exemplo: 0.2000
             [Restrição] Preenchimento obrigatório quando a forma de cobrança for Percentual. Exemplo: 0.0150 = 1,5%.
-          maxLength: 19
-          nullable: true
-          example: 0.25
+          maxLength: 6
+          minLength: 6
+          example: '0.2500'
       additionalProperties: false
     LoansContractInterestRate:
       type: object
@@ -832,23 +848,25 @@ components:
           pattern: '[\w\W\s]*'
           example: Informações adicionais
         preFixedRate:
-          type: number
+          type: string
+          pattern: '^\d{1}\.\d{4}$'
+          maxLength: 6
+          minLength: 6
+          example: '0.6000'
           description: |
             Taxa pré fixada aplicada sob o contrato da modalidade crédito.
             p.ex. 0.0045. O preenchimento deve respeitar as 4 casas decimais, mesmo que venham preenchidas com zeros
             (representação de porcentagem p.ex: 0.1500. Este valor representa 15%. O valor 1 representa 100%)
-          maxLength: 19
-          example: 0.6
-          nullable: true
         postFixedRate:
-          type: number
+          type: string
+          pattern: '^\d{1}\.\d{4}$'
+          maxLength: 6
+          minLength: 6
           description: |
             Taxa pós fixada aplicada sob o contrato da modalidade crédito.
             p.ex. 0.0045 .O preenchimento deve respeitar as 4 casas decimais, mesmo que venham preenchidas com zeros
             (representação de porcentagem p.ex: 0.1500. Este valor representa 15%. O valor 1 representa 100%)
-          maxLength: 19
-          example: 0.55
-          nullable: true
+          example: '0.5500'
         additionalInfo:
           type: string
           maxLength: 1200
@@ -877,13 +895,11 @@ components:
             [Restrição] Obrigatório quando chargeType for igual 'OUTROS'.
         chargeAmount:
           description: Valor do pagamento do encargo pago fora da parcela. Expresso em valor monetário com até 4 casas decimais.
-          type: number
-          format: double
-          nullable: true
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          maxLength: 20
-          minLength: 0
-          example: 100000.04
+          maxLength: 21
+          minLength: 4
+          example: '100000.0400'
       additionalProperties: false
     LoansFinanceCharge:
       type: object
@@ -914,7 +930,6 @@ components:
       required:
         - dueInstalments
         - pastDueInstalments
-        - balloonPayments
         - typeContractRemaining
         - contractRemainingNumber
         - typeNumberOfInstalments
@@ -996,6 +1011,7 @@ components:
           type: string
           pattern: '^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$'
           maxLength: 100
+          minLength: 1
           example: '92792126019929279212650822221989319252576'
           description: 'Identifica de forma única o contrato da operação de crédito do cliente, mantendo as regras de imutabilidade dentro da instituição transmissora.'
         brandName:
@@ -1017,6 +1033,8 @@ components:
         ipocCode:
           type: string
           maxLength: 67
+          minLength: 22
+          pattern: '^\d{22,67}$'
           example: '92792126019929279212650822221989319252576'
           description: |
             Número padronizado do contrato - IPOC (Identificação Padronizada da Operação de Crédito). Segundo DOC 3040, composta por:
@@ -1044,12 +1062,11 @@ components:
           example: 73
           description: Quantidade total de parcelas pagas do contrato referente à Modalidade de Crédito informada.
         contractOutstandingBalance:
-          type: number
-          format: double
-          minLength: 0
-          maxLength: 20
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          example: 100000.04
+          minLength: 4
+          maxLength: 21
+          example: '100000.0400'
           description: Valor necessário para o cliente liquidar a dívida.
         releases:
           type: array
@@ -1100,12 +1117,11 @@ components:
             Moeda referente ao valor monetário informado, segundo modelo ISO-4217. p.ex. 'BRL'.
             Todos os valores monetários informados estão representados com a moeda vigente do Brasil.
         paidAmount:
-          type: number
-          format: double
-          minLength: 0
-          maxLength: 20
+          type: string
+          maxLength: 21
+          minLength: 4
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          example: 100000.04
+          example: '100000.0400'
           description: |
             Valor do pagamento referente ao  contrato da modalidade de crédito consultada.
             Expresso em valor monetário com até 4 casas decimais.
@@ -1140,21 +1156,24 @@ components:
           maxLength: 140
           pattern: '[\w\W\s]*'
           example: Reavaliação periódica do bem
-          description: Denominação da Tarifa pactuada
+          description: |
+            Denominação da Tarifa pactuada.  
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA.
         feeCode:
           type: string
           maxLength: 140
           pattern: '[\w\W\s]*'
           example: aval_bem
-          description: Sigla identificadora da tarifa pactuada
+          description: |
+            Sigla identificadora da tarifa pactuadas.
+
+            [Restrição] Caso a instituição não possua a informação para compartilhamento, informar NA
         feeAmount:
-          type: number
-          format: double
+          type: string
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          maxLength: 20
-          minLength: 0
-          nullable: true
-          example: 100000.04
+          maxLength: 21
+          minLength: 4
+          example: '100000.0400'
           description: |
             Valor monetário da tarifa pactuada no contrato.
             [Restrição] Preenchimento obrigatório quando a forma de cobrança for: Mínimo, Máximo ou Fixo
@@ -1178,18 +1197,18 @@ components:
         warrantySubType:
           $ref: '#/components/schemas/EnumWarrantySubType'
         warrantyAmount:
-          type: number
-          format: double
-          maxLength: 20
+          type: string
+          maxLength: 21
+          minLength: 4
           pattern: '^-?\d{1,15}\.\d{2,4}$'
-          example: 200.0001
+          example: '200.0001'
           description: |
             Valor original da garantia. Valor monetário, expresso com até 4 casas decimais.
             [Restrição] Preenchimento obrigatório se tipo de garantia selecionada for diferente de 'SEM_TIPO_GARANTIA'
       additionalProperties: false
     Meta:
       type: object
-      description: Meta informações referente a API requisitada.
+      description: Meta informações referente à API requisitada.
       required:
         - totalRecords
         - totalPages
@@ -1514,6 +1533,12 @@ components:
             $ref: '#/components/schemas/ResponseError'
     Unauthorized:
       description: Cabeçalho de autenticação ausente/inválido ou token inválido
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    UnprocessableEntity:
+      description: 'A sintaxe da requisição esta correta, mas não foi possível processar as instruções presentes.'
       content:
         application/json; charset=utf-8:
           schema:
