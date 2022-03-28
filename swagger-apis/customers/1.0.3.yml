@@ -332,9 +332,11 @@ components:
           items:
             $ref: '#/components/schemas/BusinessProcurator'
           minItems: 1
+          maxItems: 1000
           description: Lista dos representantes. De preenchimento obrigatório se houver representante.
         accounts:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/BusinessAccount'
           minItems: 1
@@ -401,10 +403,11 @@ components:
           description: 'Número completo do CNPJ da Empresa consultada  - o CNPJ corresponde ao número de inscrição no Cadastro de Pessoa Jurídica. Deve-se ter apenas os números do CNPJ, sem máscara'
         companyCnpjNumber:
           type: array
+          maxItems: 1000
           items:
             type: string
-          maxLength: 14
-          pattern: '\d{14}|^NA$'
+            pattern: '\d{14}|^NA$'
+            maxLength: 14
           example:
             - '50685362000135'
             - '50685362006555'
@@ -413,12 +416,14 @@ components:
             Deve-se ter apenas os números do CNPJ, sem máscara
         otherDocuments:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/BusinessOtherDocument'
           minItems: 1
           description: Relação dos demais documentos
         parties:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/PartiesParticipation'
           minItems: 1
@@ -485,6 +490,7 @@ components:
           description: 'Data e hora da atualização do bloco, conforme especificação RFC-3339'
         economicActivities:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/EconomicActivity'
           minItems: 1
@@ -509,8 +515,8 @@ components:
             amount:
               type: number
               format: double
-              minLength: 0
-              maxLength: 20
+              minimum: 0
+              maximum: 100000000000000000000
               nullable: true
               pattern: '^-?\d{1,15}\.\d{2,4}$'
               example: 100000.04
@@ -526,7 +532,9 @@ components:
             year:
               type: number
               maxLength: 4
+              minimum: 0
               maximum: 9999
+              format: int32
               nullable: true
               example: 2010
               description: 'Ano de referência do Patrimônio, conforme especificação RFC-3339.'
@@ -577,18 +585,21 @@ components:
       properties:
         postalAddresses:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/BusinessPostalAddress'
           minItems: 1
           description: Lista de endereços da pessoa jurídica
         phones:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CustomerPhone'
           minItems: 1
           description: Lista com telefones de contato da pessoa jurídica
         emails:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CustomerEmail'
           minItems: 1
@@ -604,18 +615,21 @@ components:
       properties:
         postalAddresses:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/PersonalPostalAddress'
           minItems: 1
           description: Lista de endereços da pessoa natural
         phones:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CustomerPhone'
           minItems: 1
           description: Lista com telefones de contato da pessoa natural
         emails:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CustomerEmail'
           minItems: 1
@@ -631,8 +645,8 @@ components:
         amount:
           type: number
           format: double
-          minLength: 0
-          maxLength: 20
+          minimum: 0
+          maximum: 100000000000000000000
           nullable: true
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           example: 100000.04
@@ -663,8 +677,8 @@ components:
         amount:
           type: number
           format: double
-          minLength: 0
-          maxLength: 20
+          minimum: 0
+          maximum: 100000000000000000000
           nullable: true
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           example: 100000.04
@@ -679,7 +693,7 @@ components:
           description: 'Moeda referente ao valor do patrimônio, segundo modelo ISO-4217.'
         year:
           type: number
-          maxLength: 4
+          minimum: 0
           maximum: 9999
           nullable: true
           example: 2010
@@ -920,19 +934,7 @@ components:
             Dígito da conta
           example: '4'
         type:
-          type: string
-          enum:
-            - CONTA_DEPOSITO_A_VISTA
-            - CONTA_POUPANCA
-            - CONTA_PAGAMENTO_PRE_PAGA
-            - SEM_TIPO_CONTA
-          description: |
-            Tipos de contas. Modalidades tradicionais previstas pela Resolução 4.753, não contemplando contas vinculadas, conta de domiciliados no exterior, contas em moedas estrangeiras e conta correspondente moeda eletrônica. Vide Enum
-            Conta de depósito à vista ou Conta corrente - é o tipo mais comum. Nela, o dinheiro fica à sua disposição para ser sacado a qualquer momento. Essa conta não gera rendimentos para o depositante
-            Conta poupança - foi criada para estimular as pessoas a pouparem. O dinheiro que ficar na conta por trinta dias passa a gerar rendimentos, com isenção de imposto de renda para quem declara. Ou seja, o dinheiro “cresce” (rende) enquanto ficar guardado na conta. Cada depósito terá rendimentos de mês em mês, sempre no dia do mês em que o dinheiro tiver sido depositado
-            Conta de pagamento pré-paga: segundo CIRCULAR Nº 3.680, BCB de  2013, é a 'destinada à execução de transações de pagamento em moeda eletrônica realizadas com base em fundos denominados em reais previamente aportados'.
-            SEM_TIPO_CONTA - para reporte nos dados de identificação quando o cliente não possuir conta na instituição transmissora.
-          example: CONTA_DEPOSITO_A_VISTA
+          $ref: '#/components/schemas/EnumAccountTypeCustomers'
       additionalProperties: false
     PersonalAccount:
       type: object
@@ -974,7 +976,7 @@ components:
             Dígito da conta
           example: '4'
         type:
-          $ref: '#/components/schemas/BusinessAccount/properties/type'
+          $ref: '#/components/schemas/EnumAccountTypeCustomers'
         subtype:
           type: string
           enum:
@@ -999,7 +1001,8 @@ components:
         code:
           type: number
           pattern: '^\d{7}$|^NA$'
-          maxLength: 7
+          maximum: 9999999
+          minimum: 0
           description: |
             Traz o código do ramo da atividade principal da empresa consultada, segundo padrão CNAE (Classificação Nacional de Atividades Econômicas)
           example: 8599604
@@ -1007,6 +1010,20 @@ components:
           type: boolean
           description: Indica se é o ramo principal de atividade da empresa quando true e se é o ramo secundário quando false.
           example: true
+    EnumAccountTypeCustomers:
+      type: string
+      enum:
+        - CONTA_DEPOSITO_A_VISTA
+        - CONTA_POUPANCA
+        - CONTA_PAGAMENTO_PRE_PAGA
+        - SEM_TIPO_CONTA
+      description: |
+        Tipos de contas. Modalidades tradicionais previstas pela Resolução 4.753, não contemplando contas vinculadas, conta de domiciliados no exterior, contas em moedas estrangeiras e conta correspondente moeda eletrônica. Vide Enum
+        Conta de depósito à vista ou Conta corrente - é o tipo mais comum. Nela, o dinheiro fica à sua disposição para ser sacado a qualquer momento. Essa conta não gera rendimentos para o depositante
+        Conta poupança - foi criada para estimular as pessoas a pouparem. O dinheiro que ficar na conta por trinta dias passa a gerar rendimentos, com isenção de imposto de renda para quem declara. Ou seja, o dinheiro “cresce” (rende) enquanto ficar guardado na conta. Cada depósito terá rendimentos de mês em mês, sempre no dia do mês em que o dinheiro tiver sido depositado
+        Conta de pagamento pré-paga: segundo CIRCULAR Nº 3.680, BCB de  2013, é a 'destinada à execução de transações de pagamento em moeda eletrônica realizadas com base em fundos denominados em reais previamente aportados'.
+        SEM_TIPO_CONTA - para reporte nos dados de identificação quando o cliente não possuir conta na instituição transmissora.
+      example: CONTA_DEPOSITO_A_VISTA
     EnumAreaCode:
       type: string
       example: '19'
@@ -1210,7 +1227,7 @@ components:
       enum:
         - REPRESENTANTE_LEGAL
         - PROCURADOR
-        - NAO_SE_APLICA
+        - NAO_APLICA
       example: PROCURADOR
       description: |
         Tipo de representante.
@@ -1308,7 +1325,7 @@ components:
       additionalProperties: false
     Meta:
       type: object
-      description: Meta informações referente a API requisitada.
+      description: Meta informações referente à API requisitada.
       required:
         - totalRecords
         - totalPages
@@ -1317,11 +1334,15 @@ components:
         totalRecords:
           type: integer
           format: int32
+          maximum: 1000
+          minimum: 0
           description: Número total de registros no resultado
           example: 1
         totalPages:
           type: integer
           format: int32
+          maximum: 1000
+          minimum: 0
           description: Número total de páginas no resultado
           example: 1
         requestDateTime:
@@ -1346,6 +1367,7 @@ components:
             Campo de preenchimento obrigatório caso o cliente não possua nacionalidade brasileira. Preencher indicando todas suas demais nacionalidades utilizando o código de pais de acordo com o código “alpha3” do ISO-3166.p.ex.'CAN'
         documents:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/NationalityOtherDocument'
           description: Lista que traz relação de documentos complementares de pessoas com nacionalidade diferente de brasileira
@@ -1588,12 +1610,14 @@ components:
             [Restrição] Campo obrigatório quando productsServicesType for 'OUTROS'.
         procurators:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/PersonalProcurator'
           minItems: 1
           description: Lista dos representantes. De preenchimento obrigatório se houver representante.
         accounts:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/PersonalAccount'
           minItems: 1
@@ -1669,6 +1693,7 @@ components:
           $ref: '#/components/schemas/EnumSex'
         companyCnpj:
           type: array
+          maxItems: 1000
           items:
             type: string
             pattern: '\d{14}|^NA$'
@@ -1683,6 +1708,7 @@ components:
           $ref: '#/components/schemas/PersonalDocument'
         otherDocuments:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/PersonalOtherDocument'
           minItems: 1
@@ -1694,10 +1720,12 @@ components:
           description: Informa se o Cliente tem nacionalidade brasileira.
         nationality:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/Nationality'
         filiation:
           type: array
+          maxItems: 1000
           items:
             type: object
             required:
@@ -1848,8 +1876,8 @@ components:
             amount:
               type: number
               format: double
-              minLength: 0
-              maxLength: 20
+              minimum: 0
+              maximum: 100000000000000000000
               nullable: true
               pattern: '^-?\d{1,15}\.\d{2,4}$'
               example: 100000.04
@@ -1898,6 +1926,7 @@ components:
       properties:
         data:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/BusinessIdentificationData'
         links:
@@ -1977,6 +2006,7 @@ components:
       properties:
         data:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/PersonalIdentificationData'
         links:
@@ -2022,6 +2052,7 @@ components:
         default: 1
         minimum: 1
         format: int32
+        maximum: 1000
     pageSize:
       name: page-size
       in: query

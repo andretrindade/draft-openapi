@@ -285,8 +285,8 @@ components:
           format: double
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           description: 'Saldo disponível para utilização imediata. No caso de conta de depósito a vista, sem considerar cheque especial e investimentos atrelados a conta. Admite saldo negativo. Expresso em valor monetário com 4 casas decimais.'
-          maxLength: 20
-          minLength: 0
+          minimum: 0
+          maximum: 100000000000000000000
           nullable: true
           example: 100000.04
         availableAmountCurrency:
@@ -302,6 +302,8 @@ components:
           description: 'Saldo bloqueado, não disponível para utilização imediata, por motivo de bloqueio apresentado para o cliente nos canais eletrônicos Expresso em valor monetário com 4 casas decimais.'
           maxLength: 20
           minLength: 0
+          minimum: 0
+          maximum: 100000000000000000000
           nullable: true
           example: 99.9999
         blockedAmountCurrency:
@@ -317,6 +319,8 @@ components:
           description: Saldo disponível com aplicação automática - corresponde a soma do saldo disponível acrescido do valor obtido a partir da aplicação automática Expresso em valor monetário com 4 casas decimais.
           maxLength: 20
           minLength: 0
+          minimum: 0
+          maximum: 100000000000000000000
           nullable: true
           example: 100000.04
         automaticallyInvestedAmountCurrency:
@@ -453,8 +457,8 @@ components:
           format: double
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           description: Valor do limite contratado do cheque especial.
-          maxLength: 20
-          minLength: 0
+          minimum: 0
+          maximum: 100000000000000000000
           nullable: true
           example: 99.9999
         overdraftContractedLimitCurrency:
@@ -468,8 +472,8 @@ components:
           format: double
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           description: Valor utilizado total do limite do cheque especial e o adiantamento a depositante.
-          maxLength: 20
-          minLength: 0
+          minimum: 0
+          maximum: 100000000000000000000
           nullable: true
           example: 10000.9999
         overdraftUsedLimitCurrency:
@@ -483,8 +487,8 @@ components:
           format: double
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           description: Valor de operação contratada em caráter emergencial para cobertura de saldo devedor em conta de depósitos à vista e de excesso sobre o limite pactuado de cheque especial.
-          maxLength: 20
-          minLength: 0
+          minimum: 0
+          maximum: 100000000000000000000
           example: 99.9999
           nullable: true
         unarrangedOverdraftAmountCurrency:
@@ -534,8 +538,8 @@ components:
           format: double
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           description: Valor da transação. Expressa em valor monetário com 4 casas decimais.
-          maxLength: 20
-          minLength: 0
+          minimum: 0
+          maximum: 100000000000000000000
           example: 500.54
         transactionCurrency:
           type: string
@@ -588,7 +592,6 @@ components:
       additionalProperties: false
     EnumAccountSubType:
       type: string
-      maxLength: 18
       enum:
         - INDIVIDUAL
         - CONJUNTA_SIMPLES
@@ -601,7 +604,6 @@ components:
       example: INDIVIDUAL
     EnumAccountType:
       type: string
-      maxLength: 24
       enum:
         - CONTA_DEPOSITO_A_VISTA
         - CONTA_POUPANCA
@@ -618,7 +620,6 @@ components:
         Indicador da transação: 
         - Transação efetivada
         - Lançamento futuro
-      maxLength: 19
       enum:
         - TRANSACAO_EFETIVADA
         - LANCAMENTO_FUTURO
@@ -629,14 +630,12 @@ components:
         Indicador do tipo de lançamento: 
         Débito (no extrato) Em um extrato bancário, os débitos, marcados com a letra “D” ao lado do valor registrado, informam as saídas de dinheiro na conta-corrente.
         Crédito (no extrato) Em um extrato bancário, os créditos, marcados com a letra “C” ao lado do valor registrado, informam as entradas de dinheiro na conta-corrente.
-      maxLength: 7
       enum:
         - CREDITO
         - DEBITO
       example: DEBITO
     EnumPartiePersonType:
       type: string
-      maxLength: 15
       enum:
         - PESSOA_NATURAL
         - PESSOA_JURIDICA
@@ -649,7 +648,6 @@ components:
       type: string
       description: |
         Tipo de Transação
-      maxLength: 31
       enum:
         - TED
         - DOC
@@ -714,7 +712,7 @@ components:
       additionalProperties: false
     Meta:
       type: object
-      description: Meta informações referente a API requisitada.
+      description: Meta informações referente à API requisitada.
       required:
         - totalRecords
         - totalPages
@@ -723,11 +721,15 @@ components:
         totalRecords:
           type: integer
           format: int32
+          maximum: 1000
+          minimum: 0
           description: Número total de registros no resultado
           example: 1
         totalPages:
           type: integer
           format: int32
+          maximum: 1000
+          minimum: 0
           description: Número total de páginas no resultado
           example: 1
         requestDateTime:
@@ -749,6 +751,7 @@ components:
           items:
             $ref: '#/components/schemas/AccountData'
           minItems: 0
+          maxItems: 1000
           description: 'Lista de contas depósito à vista, poupança e pagamento pré-pagas mantidas pelo cliente na instituição transmissora e para as quais ele tenha fornecido consentimento'
         links:
           $ref: '#/components/schemas/Links'
@@ -809,6 +812,7 @@ components:
           items:
             $ref: '#/components/schemas/AccountTransactionsData'
           minItems: 0
+          maxItems: 1000
           description: |
             Lista dos lançamentos referentes às transações realizadas e de lançamentos futuros para as contas de: depósito à vista, poupança e de pagamento pré-paga
         links:
@@ -866,42 +870,6 @@ components:
         type: string
         pattern: '^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$'
         maxLength: 100
-    accountsBranchCode:
-      name: branchCode
-      in: query
-      description: 'Código da Agência detentora da conta. (Agência é a dependência destinada ao atendimento aos clientes, ao público em geral e aos associados de cooperativas de crédito, no exercício de atividades da instituição, não podendo ser móvel ou transitória)'
-      schema:
-        type: string
-        maxLength: 4
-        pattern: '\d{4}|^NA$'
-      required: true
-    accountsCheckDigit:
-      name: checkDigit
-      in: query
-      description: Dígito da conta
-      schema:
-        type: string
-        maxLength: 1
-        pattern: '[\w\W\s]*'
-      required: true
-    accountsCompeCode:
-      name: compeCode
-      in: query
-      description: 'Código identificador atribuído pelo Banco Central do Brasil às instituições participantes do STR (Sistema de Transferência de reservas). O número-código substituiu o antigo código COMPE. Todos os participantes do STR, exceto as Infraestruturas do Mercado Financeiro (IMF) e a Secretaria do Tesouro Nacional, possuem um número-código independentemente de participarem da Centralizadora da Compensação de Cheques (Compe). O campo tem a anotação “n/a” (“não se aplica”) para os participantes do STR aos quais não é atribuído um número-código'
-      schema:
-        type: string
-        maxLength: 3
-        pattern: '\d{3}|^NA$'
-      required: true
-    accountsNumber:
-      name: number
-      in: query
-      description: Número da conta
-      schema:
-        type: string
-        maxLength: 20
-        pattern: '\d{20}|^NA$'
-      required: true
     accountType:
       name: accountType
       description: 'Tipos de contas. Modalidades tradicionais previstas pela Resolução 4.753, não contemplando contas vinculadas, conta de domiciliados no exterior, contas em moedas estrangeiras e conta correspondente moeda eletrônica. Vide Enum.'
@@ -944,6 +912,7 @@ components:
         default: 1
         minimum: 1
         format: int32
+        maximum: 1000
     pageSize:
       name: page-size
       in: query

@@ -1,5 +1,5 @@
 ﻿Xpath;Nome;Definição;Tipo de Dado;Tamanho;Mandatoriedade;Formato;Domínio;Mínimo de Ocorrências;Máximo de Ocorrências;Restrições;Nulidade;Tipo de Dado Json;Exemplo
-/data;data;"";Lista;;Obrigatório;;;1;N;"";Não permitido;array;
+/data;data;"";Lista;;Obrigatório;;;1;1;"";Não permitido;array;
 /data/transactionId;transactionId;Código ou identificador único prestado pela instituição que mantém a conta para representar a transação individual.;Texto;100;Opcional;^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$;;0;1;"";Não permitido;string;TXpRMU9UQTROMWhZV2xSU1FUazJSMDl
 /data/identificationNumber;identificationNumber;Número de identificação do cartão: corresponde aos 4 últimos dígitos do cartão para PF, ou então, preencher com um identificador para PJ, com as caracteristicas definidas para os IDs no Open Banking.;Texto;100;Obrigatório;^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$;;1;1;"";Não permitido;string;4453
 /data/lineName;lineName;"";Texto;28;Opcional;;"CREDITO_A_VISTA 
@@ -12,7 +12,7 @@ OUTROS";0;1;"";Não permitido;string;CREDITO_A_VISTA
 /data/billId;billId;Informação que identifica a fatura onde consta a transação informada.;Texto;100;Opcional;^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$;;0;1;"";Não permitido;string;MTU0OTU1NjI2NTk4OTRmc2ZhZDRmc2Q1NmZkM
 /data/creditDebitType;creditDebitType;"Indicador do tipo de lançamento: 
 Débito (no extrato) Em um extrato bancário, os débitos, marcados com a letra “D” ao lado do valor registrado, informam as saídas de dinheiro na conta-corrente.
-Crédito (no extrato) Em um extrato bancário, os créditos, marcados com a letra “C” ao lado do valor registrado, informam as entradas de dinheiro na conta-corrente.";Texto;7;Obrigatório;;"CREDITO 
+Crédito (no extrato) Em um extrato bancário, os créditos, marcados com a letra “C” ao lado do valor registrado, informam as entradas de dinheiro na conta-corrente.";Texto;;Obrigatório;;"CREDITO 
 DEBITO";1;1;"";Não permitido;string;DEBITO
 /data/transactionType;transactionType;Traz os tipos de Transação;Texto;36;Obrigatório;;"PAGAMENTO 
 TARIFA 

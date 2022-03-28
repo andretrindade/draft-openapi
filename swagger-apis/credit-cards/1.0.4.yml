@@ -357,6 +357,7 @@ components:
           example: NA
         paymentMethod:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CreditCardsAccountPaymentMethod'
           minItems: 1
@@ -394,6 +395,8 @@ components:
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           maxLength: 20
           minLength: 0
+          maximum: 100000000000000000000
+          minimum: 0
           description: Valor total da fatura
           example: 100000.04
         billTotalAmountCurrency:
@@ -404,6 +407,8 @@ components:
           example: BRL
         billMinimumAmount:
           type: number
+          maximum: 10000000000000000000
+          minimum: 0
           format: double
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           maxLength: 19
@@ -422,12 +427,14 @@ components:
           example: false
         financeCharges:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CreditCardAccountsBillsFinanceCharge'
           minItems: 1
           description: Lista dos encargos cobrados na fatura
         payments:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CreditCardAccountsBillsPayment'
           minItems: 0
@@ -451,6 +458,8 @@ components:
         amount:
           type: number
           format: double
+          maximum: 100000000000000000000
+          minimum: 0
           minLength: 0
           maxLength: 20
           nullable: true
@@ -492,6 +501,8 @@ components:
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           maxLength: 20
           minLength: 0
+          maximum: 100000000000000000000
+          minimum: 0
           example: 100000.04
           description: Valor pagamento segundo o valueType.  Expresso em valor monetário com 4 casas decimais
         currency:
@@ -584,6 +595,7 @@ components:
         lineNameAdditionalInfo:
           type: string
           pattern: '[\w\W\s]*'
+          maxLength: 1000
           example: Informações adicionais e complementares.
           description: Campo de preenchimento obrigatório se selecionada a opção 'OUTRAS' em lineName.
         isLimitFlexible:
@@ -600,6 +612,8 @@ components:
             Todos os limite informados estão representados com a moeda vigente do do Brasil.
         limitAmount:
           type: number
+          maximum: 100000000000000000000
+          minimum: 0
           format: double
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           description: Valor total do limite informado Expresso em valor monetário com 4 casas decimais.
@@ -620,6 +634,8 @@ components:
           format: double
           pattern: '^-?\d{1,15}\.\d{2,4}$'
           description: Valor utilizado do limite informado Expresso em valor monetário com 4 casas decimais.
+          maximum: 100000000000000000000
+          minimum: 0
           maxLength: 20
           minLength: 0
           example: 7500.05
@@ -639,6 +655,8 @@ components:
           description: Valor disponível do limite informado Expresso em valor monetário com 4 casas decimais.
           maxLength: 20
           minLength: 0
+          maximum: 100000000000000000000
+          minimum: 0
           nullable: true
           example: 2499.95
       additionalProperties: false
@@ -742,6 +760,8 @@ components:
           description: Identificador da parcela que está sendo informada. Campo de livre preenchimento
         chargeNumber:
           type: number
+          maximum: 99
+          minimum: 0
           format: integer
           nullable: true
           maxLength: 2
@@ -749,6 +769,8 @@ components:
           description: Quantidade de parcelas
         brazilianAmount:
           type: number
+          maximum: 100000000000000000000
+          minimum: 0
           format: double
           nullable: true
           maxLength: 20
@@ -757,6 +779,8 @@ components:
           description: 'Valor da transação expresso em valor monetário com 4 casas decimais, em moeda corrente do Brasil'
         amount:
           type: number
+          maximum: 100000000000000000000
+          minimum: 0
           format: double
           nullable: true
           maxLength: 20
@@ -788,6 +812,8 @@ components:
         payeeMCC:
           type: number
           format: integer
+          maximum: 9999
+          minimum: 0
           maxLength: 4
           nullable: true
           example: 5137
@@ -970,7 +996,6 @@ components:
         Indicador do tipo de lançamento: 
         Débito (no extrato) Em um extrato bancário, os débitos, marcados com a letra “D” ao lado do valor registrado, informam as saídas de dinheiro na conta-corrente.
         Crédito (no extrato) Em um extrato bancário, os créditos, marcados com a letra “C” ao lado do valor registrado, informam as entradas de dinheiro na conta-corrente.
-      maxLength: 7
       enum:
         - CREDITO
         - DEBITO
@@ -985,10 +1010,7 @@ components:
           type: string
           format: uri
           maxLength: 2000
-          description: |
-            O atributo self do objeto link:
-
-            Quando chamado método GET deverá retornar o link para o próprio recurso consultado.
+          description: URI completo que gerou a resposta atual.
           example: 'https://api.banco.com.br/open-banking/api/v1/resource'
           pattern: '^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$'
         first:
@@ -1022,7 +1044,7 @@ components:
       additionalProperties: false
     Meta:
       type: object
-      description: Meta informações referente a API requisitada.
+      description: Meta informações referente à API requisitada.
       required:
         - totalRecords
         - totalPages
@@ -1031,11 +1053,15 @@ components:
         totalRecords:
           type: integer
           format: int32
+          maximum: 1000
+          minimum: 0
           description: Número total de registros no resultado
           example: 1
         totalPages:
           type: integer
           format: int32
+          maximum: 1000
+          minimum: 0
           description: Número total de páginas no resultado
           example: 1
         requestDateTime:
@@ -1054,6 +1080,7 @@ components:
       properties:
         data:
           type: array
+          maxItems: 1000
           description: Conjunto de informações de conta de pagamento pós-paga
           items:
             $ref: '#/components/schemas/CreditCardAccountsData'
@@ -1072,6 +1099,7 @@ components:
       properties:
         data:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CreditCardAccountsBillsData'
         links:
@@ -1102,6 +1130,7 @@ components:
       properties:
         data:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CreditCardAccountsLimitsData'
         links:
@@ -1118,6 +1147,7 @@ components:
       properties:
         data:
           type: array
+          maxItems: 1000
           items:
             $ref: '#/components/schemas/CreditCardAccountsTransaction'
         links:
@@ -1200,6 +1230,8 @@ components:
       in: query
       schema:
         type: number
+        maximum: 9999
+        minimum: 0
         maxLength: 4
         example: 8299
     creditCardTransactionType:
@@ -1238,6 +1270,7 @@ components:
         default: 1
         minimum: 1
         format: int32
+        maximum: 1000
     pageSize:
       name: page-size
       in: query
