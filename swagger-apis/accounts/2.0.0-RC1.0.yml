@@ -861,42 +861,6 @@ components:
         type: string
         pattern: '^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$'
         maxLength: 100
-    accountsBranchCode:
-      name: branchCode
-      in: query
-      description: 'Código da Agência detentora da conta. (Agência é a dependência destinada ao atendimento aos clientes, ao público em geral e aos associados de cooperativas de crédito, no exercício de atividades da instituição, não podendo ser móvel ou transitória)'
-      schema:
-        type: string
-        maxLength: 4
-        pattern: '\d{4}|^NA$'
-      required: true
-    accountsCheckDigit:
-      name: checkDigit
-      in: query
-      description: Dígito da conta
-      schema:
-        type: string
-        maxLength: 1
-        pattern: '[\w\W\s]*'
-      required: true
-    accountsCompeCode:
-      name: compeCode
-      in: query
-      description: 'Código identificador atribuído pelo Banco Central do Brasil às instituições participantes do STR (Sistema de Transferência de reservas). O número-código substituiu o antigo código COMPE. Todos os participantes do STR, exceto as Infraestruturas do Mercado Financeiro (IMF) e a Secretaria do Tesouro Nacional, possuem um número-código independentemente de participarem da Centralizadora da Compensação de Cheques (Compe). O campo tem a anotação “n/a” (“não se aplica”) para os participantes do STR aos quais não é atribuído um número-código'
-      schema:
-        type: string
-        maxLength: 3
-        pattern: '\d{3}|^NA$'
-      required: true
-    accountsNumber:
-      name: number
-      in: query
-      description: Número da conta
-      schema:
-        type: string
-        maxLength: 20
-        pattern: '\d{20}|^NA$'
-      required: true
     accountType:
       name: accountType
       description: 'Tipos de contas. Modalidades tradicionais previstas pela Resolução 4.753, não contemplando contas vinculadas, conta de domiciliados no exterior, contas em moedas estrangeiras e conta correspondente moeda eletrônica. Vide Enum.'

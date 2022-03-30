@@ -2018,25 +2018,6 @@ components:
         type: string
         pattern: '[\w\W\s]*'
         maxLength: 2048
-    page:
-      name: page
-      in: query
-      description: Número da página que está sendo requisitada (o valor da primeira página é 1).
-      schema:
-        type: integer
-        default: 1
-        minimum: 1
-        format: int32
-    pageSize:
-      name: page-size
-      in: query
-      description: Quantidade total de registros por páginas.
-      schema:
-        type: integer
-        default: 25
-        minimum: 1
-        format: int32
-        maximum: 1000
     xCustomerUserAgent:
       name: x-customer-user-agent
       in: header
