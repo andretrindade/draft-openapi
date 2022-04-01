@@ -623,7 +623,6 @@ components:
       description: Período de concessão do benefício
       required:
         - incomeModalities
-        - biometricTable
       properties:
         incomeModalities:
           type: array
@@ -659,7 +658,7 @@ components:
             example: PAGAMENTO_UNICO
         biometricTable:
           type: array
-          minItems: 1
+          minItems: 0
           items:
             type: string
             maxLength: 32
